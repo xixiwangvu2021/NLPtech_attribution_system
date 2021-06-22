@@ -1,0 +1,22 @@
+The predictions are written on the output file.
+              precision    recall  f1-score   support
+
+   B-CONTENT     0.6000    0.2868    0.3881       544
+   I-CONTENT     0.6184    0.4129    0.4952      8888
+    B-SOURCE     0.8265    0.3542    0.4959       511
+    I-SOURCE     0.7399    0.3545    0.4794      1605
+       B-CUE     0.8929    0.3975    0.5501       566
+       I-CUE     0.5000    0.0761    0.1321       184
+
+   micro avg     0.6452    0.3915    0.4873     12298
+   macro avg     0.6963    0.3137    0.4234     12298
+weighted avg     0.6529    0.3915    0.4855     12298
+
+Accuracy score for sequence items
+0.7099844770523973
+Precision score for sequence items
+0.7010304463646992
+Recall score for sequence items
+0.7099844770523973
+F1 score score for sequence items
+0.6871417764076192
