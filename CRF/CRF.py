@@ -11,18 +11,6 @@ from sklearn_crfsuite import metrics
 
 
 class CRF(object):
-    # def __init__(self, trainingfile, evaluationfile, outputfile, **kwargs):
-    #     #     """
-    #     #     Args:
-    #     #         trainingfile (string): the.
-    #     #         evaluationfile (string): the.
-    #     #         outputfile (string): the.
-    #     #     """
-    #     #     super(CRF, self).__init__(**kwargs)
-    #     #     self.trainingfile = trainingfile
-    #     #     self.evaluationfile = evaluationfile
-    #     #     self.outputfile = outputfile
-    
     def token2features(self, sentence, i):
         # print(sentence)
 
@@ -223,19 +211,66 @@ class CRF(object):
 
         # Close file
         outfile.close()
+ 
+    def write_out_evaluation(self, eval_data, pred_labels, outputfile):
         
-    def report_evaluation(self, labels, y_test, y_pred):
+        outfile = open(f'Result/{outputfile}', 'w')
+        headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
+                   "Dep_label", "Token_dep_head", "AR_label"]
+        # headers = ['Word', 'pred_AR_label']
+        header_row = '\t'.join(headers) + '\n'
+
+        outfile.write(header_row)
+
+        for evalsents, predsents in zip(eval_data, pred_labels):
+            for data, pred in zip(evalsents, predsents):
+                # Data: from tuple to string separated string, except for the gold label from the original file
+                data_tsv = '\t'.join(list(data)[:10])
+                outfile.write(data_tsv + "\t" + pred + "\n")
+
+        # Close file
+        outfile.close()
         
-        print('The predictions are written on the output file.')
-        print(metrics.flat_classification_report(y_test, y_pred, labels=labels, digits=4))
-        print('Accuracy score for sequence items')
-        print(metrics.flat_accuracy_score(y_test, y_pred))
-        print('Precision score for sequence items')
-        print(metrics.flat_precision_score(y_test, y_pred, average='weighted'))
-        print('Recall score for sequence items')
-        print(metrics.flat_recall_score(y_test, y_pred, average='weighted'))
-        print('F1 score score for sequence items')
-        print(metrics.flat_f1_score(y_test, y_pred, average='weighted'))
+    def write_out_evaluation_diff(self, eval_data, pred_labels, outputfile):
+        
+        outfile = open(f'Result/Diff/{outputfile}', 'w')
+        headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
+                   "Dep_label", "Token_dep_head", "AR_label", "Pred_AR_label"]
+        header_row = '\t'.join(headers) + '\n'
+
+        outfile.write(header_row)
+
+        for evalsents, pred_labels in zip(eval_data, pred_labels):
+            for data, pred_label in zip(evalsents, pred_labels):
+                eval_label = data[10]
+                if eval_label != pred_label:
+                    # Data: from tuple to string separated string, except for the gold label from the original file
+                    data_tsv = '\t'.join(list(data[:11]))
+                    outfile.write(data_tsv + "\t" + pred_label + "\n")
+
+        # Close file
+        outfile.close()
+        
+    def report_evaluation(self, labels, y_test, y_pred, outputfile):
+        original_stdout = sys.stdout  # Save a reference to the original standard output
+        
+        outputfile = outputfile.replace('.csv', '.txt')
+
+        with open(f'Result/Evaluation/{outputfile}', 'w') as f:
+            sys.stdout = f    
+                  
+            print('The predictions are written on the output file.')
+            print(metrics.flat_classification_report(y_test, y_pred, labels=labels, digits=4))
+            print('Accuracy score for sequence items')
+            print(metrics.flat_accuracy_score(y_test, y_pred))
+            print('Precision score for sequence items')
+            print(metrics.flat_precision_score(y_test, y_pred, average='weighted'))
+            print('Recall score for sequence items')
+            print(metrics.flat_recall_score(y_test, y_pred, average='weighted'))
+            print('F1 score score for sequence items')
+            print(metrics.flat_f1_score(y_test, y_pred, average='weighted'))
+                  
+        sys.stdout = original_stdout  # Reset the standard output to its original value
 
     def train_and_run_crf_model(self, trainingfile, evaluationfile, outputfile):
 
@@ -246,7 +281,8 @@ class CRF(object):
         print(labels)
         y_pred, eval_sents, y_test = self.run_crf_model(crf, evaluationfile)
         self.write_out_evaluation(eval_sents, y_pred, outputfile)
-        self.report_evaluation(labels, y_test, y_pred)
+        self.write_out_evaluation_diff(eval_sents, y_pred, outputfile)
+        self.report_evaluation(labels, y_test, y_pred, outputfile)
 
         
 class FeaturesCRF(CRF):
@@ -348,8 +384,8 @@ class FeaturesCRF(CRF):
 
 class Features2CRF(CRF):
     def token2features(self, sentence, i):
-        nr_in_sentence = sentence[i][3]
-        word = sentence[i][5]
+        nr_in_sentence = sentence[i][3]  # Normalize
+        word = sentence[i][6]  # 5]
         postag = sentence[i][7]
         dep_label = sentence[i][8]
         in_quote = sentence[i][11]
@@ -385,8 +421,8 @@ class Features2CRF(CRF):
             'next_lemma': next_lemma,
             'dep_label': dep_label,
             'nr_in_sentence': nr_in_sentence,
-            'in_quote': in_quote,
-            'after_colon': after_colon,
+#             'in_quote': in_quote,  # Made no difference
+#             'after_colon': after_colon,  # Made no difference
             'dependency_distance': dependency_distance,
             'dependency_path': dependency_path,
         }
@@ -554,6 +590,96 @@ class Features3CRF(CRF):
 
         return features
     
+
+class Features4CRF(CRF):
+    cue_lemmas = ['say', 'be', 'to', 'have', 'tell', 'call', 'write', 'accord', 'add', 'ask', 'show', 'support', 'note', 
+                  'report', 'suggest', 'argue', 'expect', 'report', 'believe', 'agree', 'think', 'announce', 'cite', 'suggest']
+    
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
+        lemma = sentence[i][6]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        # constituent_path
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+        is_cue_lemma = (lemma in self.cue_lemmas)
+        
+        word_is_upper = ''
+        if word:
+            word = word.lower()
+            word_is_upper = word.isupper()
+
+        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_lemma = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_lemma = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_lemma = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_lemma = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+#             'token': word,
+            'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+            'prev_prev_lemma': prev_prev_lemma,
+            'prev_lemma': prev_lemma,
+            'next_next_lemma': next_next_lemma,
+            'next_lemma': next_lemma,
+            'dep_label': dep_label,
+            'nr_in_sentence': nr_in_sentence,
+            'in_quote': in_quote,
+            'after_colon': after_colon,
+            'dependency_distance': dependency_distance,
+            'dependency_path': dependency_path,
+            'is_cue_lemma': is_cue_lemma,
+        }
+
+        if i > 0:
+            word1 = sentence[i - 1][5]
+            postag1 = sentence[i - 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word.isupper()
+
+            features.update({
+#                 '-1:word.lower()': word1.lower(),
+                '-1:word.isupper()': word1_is_upper,
+                '-1:postag': postag1,
+                '-1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['BOS'] = True
+
+        if i < len(sentence) - 1:
+            word1 = sentence[i + 1][5]
+            postag1 = sentence[i + 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word.isupper()
+
+            features.update({
+#                 '+1:word.lower()': word1.lower(),
+                '+1:word.isupper()': word1_is_upper,
+                '+1:postag': postag1,
+                '+1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['EOS'] = True
+
+        return features
+
     
 class EmbeddingCRF(CRF):
     def __init__(self, nr_model_dimensions, **kwargs):
@@ -605,4 +731,97 @@ class EmbeddingCRF(CRF):
         elif i == len(sentence) -1:
             features['EOS'] = True
             
+        return features
+
+
+class FeaturesEmbeddingCRF(EmbeddingCRF):
+    def token2features(self, sentence, i):
+        '''Get tokens in the sentence, add bias, token and word embeddings as features and return all as a feature dictionary.'''
+
+        nr_in_sentence = sentence[i][3]  # Normalize
+        word = sentence[i][5]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        # constituent_path
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+
+        word_is_upper = ''
+        if word:
+            word = word.lower()
+            word_is_upper = word.isupper()
+
+        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_lemma = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_lemma = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_lemma = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_lemma = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+            'token': word,
+            'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+            'prev_prev_lemma': prev_prev_lemma,
+            'prev_lemma': prev_lemma,
+            'next_next_lemma': next_next_lemma,
+            'next_lemma': next_lemma,
+            'dep_label': dep_label,
+            'nr_in_sentence': nr_in_sentence,
+#             'in_quote': in_quote,  # Made no difference
+#             'after_colon': after_colon,  # Made no difference
+            'dependency_distance': dependency_distance,
+            'dependency_path': dependency_path,
+        }
+
+        # Add word embeddings
+        wordembedding = self.get_features(word)  ## word embedding vector 
+        wordembedding = np.array(wordembedding)  ## vectors
+
+        for iv,value in enumerate(wordembedding):
+            features['v{}'.format(iv)] = value
+
+        if i > 0:
+            word1 = sentence[i - 1][5]
+            postag1 = sentence[i - 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word.isupper()
+
+            features.update({
+                '-1:word.lower()': word1.lower(),
+                '-1:word.isupper()': word1_is_upper,
+                '-1:postag': postag1,
+                '-1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['BOS'] = True
+
+        if i < len(sentence) - 1:
+            word1 = sentence[i + 1][5]
+            postag1 = sentence[i + 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word.isupper()
+
+            features.update({
+                '+1:word.lower()': word1.lower(),
+                '+1:word.isupper()': word1_is_upper,
+                '+1:postag': postag1,
+                '+1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['EOS'] = True
+
         return features
