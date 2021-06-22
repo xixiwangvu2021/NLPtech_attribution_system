@@ -1,0 +1,25 @@
+['B-SOURCE', 'I-SOURCE', 'B-CUE', 'B-CONTENT', 'I-CONTENT', 'I-CUE']
+The predictions are written on the output file.
+/Users/bettyvandongen/opt/anaconda3/lib/python3.8/site-packages/sklearn/utils/validation.py:67: FutureWarning: Pass labels=['B-SOURCE', 'I-SOURCE', 'B-CUE', 'B-CONTENT', 'I-CONTENT', 'I-CUE'] as keyword args. From version 0.25 passing these as positional arguments will result in an error
+  warnings.warn("Pass {} as keyword args. From version 0.25 "
+              precision    recall  f1-score   support
+
+    B-SOURCE     0.7248    0.4908    0.5852      1948
+    I-SOURCE     0.5951    0.4914    0.5383      4070
+       B-CUE     0.7893    0.5388    0.6404      2190
+   B-CONTENT     0.5939    0.4095    0.4848      2193
+   I-CONTENT     0.7246    0.7407    0.7326     36881
+       I-CUE     0.4096    0.2317    0.2960      1808
+
+   micro avg     0.7061    0.6675    0.6863     49090
+   macro avg     0.6395    0.4838    0.5462     49090
+weighted avg     0.6993    0.6675    0.6794     49090
+
+Accuracy score for sequence items
+0.6851247977247095
+Precision score for sequence items
+0.6826392700634746
+Recall score for sequence items
+0.6851247977247095
+F1 score score for sequence items
+0.6809925217618674
