@@ -80,7 +80,7 @@ class CRF(object):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             # features.update({
             #     '-1:word.lower()': word1.lower(),
@@ -98,7 +98,7 @@ class CRF(object):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             # features.update({
             #     '+1:word.lower()': word1.lower(),
@@ -350,7 +350,7 @@ class FeaturesCRF(CRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             # features.update({
             #     '-1:word.lower()': word1.lower(),
@@ -384,8 +384,8 @@ class FeaturesCRF(CRF):
 
 class Features2CRF(CRF):
     def token2features(self, sentence, i):
-        nr_in_sentence = sentence[i][3]  # Normalize
-        word = sentence[i][6]  # 5]
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
         postag = sentence[i][7]
         dep_label = sentence[i][8]
         in_quote = sentence[i][11]
@@ -399,15 +399,15 @@ class Features2CRF(CRF):
             word = word.lower()
             word_is_upper = word.isupper()
 
-        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
         if i - 2 >= 0:
-            prev_prev_lemma = sentence[i-2][7]
+            prev_prev_postag = sentence[i-2][7]
         if i - 1 >= 0:
-            prev_lemma = sentence[i-1][7]
+            prev_postag = sentence[i-1][7]
         if i + 2 < len(sentence):
-            next_next_lemma = sentence[i+2][7]
+            next_next_postag = sentence[i+2][7]
         if i + 1 < len(sentence):
-            next_lemma = sentence[i+1][7]
+            next_postag = sentence[i+1][7]
 
         features = {
             'bias': 1.0,
@@ -415,14 +415,14 @@ class Features2CRF(CRF):
             'word.isupper()': word_is_upper,
             'postag': postag,
             'postag[:2]': postag[:2],
-            'prev_prev_lemma': prev_prev_lemma,
-            'prev_lemma': prev_lemma,
-            'next_next_lemma': next_next_lemma,
-            'next_lemma': next_lemma,
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
             'dep_label': dep_label,
             'nr_in_sentence': nr_in_sentence,
-#             'in_quote': in_quote,  # Made no difference
-#             'after_colon': after_colon,  # Made no difference
+            'in_quote': in_quote,
+            'after_colon': after_colon,
             'dependency_distance': dependency_distance,
             'dependency_path': dependency_path,
         }
@@ -434,7 +434,7 @@ class Features2CRF(CRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             features.update({
                 '-1:word.lower()': word1.lower(),
@@ -452,7 +452,7 @@ class Features2CRF(CRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             features.update({
                 '+1:word.lower()': word1.lower(),
@@ -484,30 +484,30 @@ class Features3CRF(CRF):
             word = word.lower()
             word_is_upper = word.isupper()
 
-        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
         if i - 2 >= 0:
-            prev_prev_lemma = sentence[i-2][7]
+            prev_prev_postag = sentence[i-2][7]
         if i - 1 >= 0:
-            prev_lemma = sentence[i-1][7]
+            prev_postag = sentence[i-1][7]
         if i + 2 < len(sentence):
-            next_next_lemma = sentence[i+2][7]
+            next_next_postag = sentence[i+2][7]
         if i + 1 < len(sentence):
-            next_lemma = sentence[i+1][7]
+            next_postag = sentence[i+1][7]
 
         features = {
             'bias': 1.0,
             'token': word,
             'word.isupper()': word_is_upper,
             'postag': postag,
-            'postag[:2]': postag[:2],
-            'prev_prev_lemma': prev_prev_lemma,
-            'prev_lemma': prev_lemma,
-            'next_next_lemma': next_next_lemma,
-            'next_lemma': next_lemma,
+#             'postag[:2]': postag[:2],
+#             'prev_prev_postag': prev_prev_postag,
+#             'prev_postag': prev_postag,
+#             'next_next_postag': next_next_postag,
+#             'next_postag': next_postag,
             'dep_label': dep_label,
             'nr_in_sentence': nr_in_sentence,
-            'in_quote': in_quote,
-            'after_colon': after_colon,
+#             'in_quote': in_quote,
+#             'after_colon': after_colon,
             'dependency_distance': dependency_distance,
             'dependency_path': dependency_path,
         }
@@ -519,7 +519,7 @@ class Features3CRF(CRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
                 
             word2 = sentence[i - 2][5]
             postag2 = sentence[i - 2][7]
@@ -527,13 +527,13 @@ class Features3CRF(CRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             features.update({
                 '-1:word.lower()': word1.lower(),
                 '-1:word.isupper()': word1_is_upper,
                 '-1:postag': postag1,
-                '-1:postag[:2]': postag1[:2],
+#                 '-1:postag[:2]': postag1[:2],
             })
         else:
             features['BOS'] = True
@@ -545,13 +545,13 @@ class Features3CRF(CRF):
             word2_is_upper = ''
             if word2:
                 word2 = word2.lower()
-                word2_is_upper = word.isupper()
+                word2_is_upper = word2.isupper()
 
             features.update({
                 '-2:word.lower()': word2.lower(),
                 '-2:word.isupper()': word2_is_upper,
                 '-2:postag': postag2,
-                '-2:postag[:2]': postag2[:2],
+#                 '-2:postag[:2]': postag2[:2],
             })
  
         if i < len(sentence) - 1:
@@ -561,13 +561,13 @@ class Features3CRF(CRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             features.update({
                 '+1:word.lower()': word1.lower(),
                 '+1:word.isupper()': word1_is_upper,
                 '+1:postag': postag1,
-                '+1:postag[:2]': postag1[:2],
+#                 '+1:postag[:2]': postag1[:2],
             })
         else:
             features['EOS'] = True
@@ -579,13 +579,13 @@ class Features3CRF(CRF):
             word2_is_upper = ''
             if word2:
                 word2 = word2.lower()
-                word2_is_upper = word.isupper()
+                word2_is_upper = word2.isupper()
 
             features.update({
                 '+2:word.lower()': word2.lower(),
                 '+2:word.isupper()': word2_is_upper,
                 '+2:postag': postag2,
-                '+2:postag[:2]': postag2[:2],
+#                 '+2:postag[:2]': postag2[:2],
             })
 
         return features
@@ -613,15 +613,15 @@ class Features4CRF(CRF):
             word = word.lower()
             word_is_upper = word.isupper()
 
-        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
         if i - 2 >= 0:
-            prev_prev_lemma = sentence[i-2][7]
+            prev_prev_postag = sentence[i-2][7]
         if i - 1 >= 0:
-            prev_lemma = sentence[i-1][7]
+            prev_postag = sentence[i-1][7]
         if i + 2 < len(sentence):
-            next_next_lemma = sentence[i+2][7]
+            next_next_postag = sentence[i+2][7]
         if i + 1 < len(sentence):
-            next_lemma = sentence[i+1][7]
+            next_postag = sentence[i+1][7]
 
         features = {
             'bias': 1.0,
@@ -629,10 +629,10 @@ class Features4CRF(CRF):
             'word.isupper()': word_is_upper,
             'postag': postag,
             'postag[:2]': postag[:2],
-            'prev_prev_lemma': prev_prev_lemma,
-            'prev_lemma': prev_lemma,
-            'next_next_lemma': next_next_lemma,
-            'next_lemma': next_lemma,
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
             'dep_label': dep_label,
             'nr_in_sentence': nr_in_sentence,
             'in_quote': in_quote,
@@ -649,7 +649,7 @@ class Features4CRF(CRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             features.update({
 #                 '-1:word.lower()': word1.lower(),
@@ -667,7 +667,7 @@ class Features4CRF(CRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             features.update({
 #                 '+1:word.lower()': word1.lower(),
@@ -795,7 +795,7 @@ class FeaturesEmbeddingCRF(EmbeddingCRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             features.update({
                 '-1:word.lower()': word1.lower(),
@@ -813,7 +813,7 @@ class FeaturesEmbeddingCRF(EmbeddingCRF):
             word1_is_upper = ''
             if word1:
                 word1 = word1.lower()
-                word1_is_upper = word.isupper()
+                word1_is_upper = word1.isupper()
 
             features.update({
                 '+1:word.lower()': word1.lower(),
