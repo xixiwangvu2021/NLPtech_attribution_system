@@ -12,101 +12,16 @@ from sklearn_crfsuite import metrics
 
 class CRF(object):
     def token2features(self, sentence, i):
-        # print(sentence)
-
-        nr_in_sentence = sentence[i][3]
-        word = sentence[i][5]
-        postag = sentence[i][7]
-        dep_label = sentence[i][8]
-        in_quote = sentence[i][11]
-        after_colon = sentence[i][12]
-        # constituent_path
-        dependency_distance = sentence[i][13]
-        dependency_path = sentence[i][14]
-
-        word_is_upper = ''
-        if word:
-            word = word.lower()
-            word_is_upper = word.isupper()
-        # else:
-        #     print(sentence)
-
-        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
-        if i - 2 >= 0:
-            prev_prev_lemma = sentence[i-2][7]
-        if i - 1 >= 0:
-            prev_lemma = sentence[i-1][7]
-        if i + 2 < len(sentence):
-            next_next_lemma = sentence[i+2][7]
-        if i + 1 < len(sentence):
-            next_lemma = sentence[i+1][7]
+        token = sentence[i][5]
 
         features = {
             'bias': 1.0,
-            'token': word,
+            'token': token.lower(),
         }
-
-#         # Schermafbeelding 2021-06-20 om 00.03.42
-#         features = {
-#             'bias': 1.0,
-#             'token': lemma.lower(),
-#             'postag': postag,
-#             'dep_label': dep_label,
-#             'nr_in_sentence': nr_in_sentence,
-#         }
-
-#         features = {
-#             'bias': 1.0,
-#             'token': word,
-#             'word.isupper()': word_is_upper,
-#             'postag': postag,
-#             'postag[:2]': postag[:2],
-#             'prev_prev_lemma': prev_prev_lemma,
-#             'prev_lemma': prev_lemma,
-#             'next_next_lemma': next_next_lemma,
-#             'next_lemma': next_lemma,
-#             'dep_label': dep_label,
-#             'nr_in_sentence': nr_in_sentence,
-#         #    'in_quote': in_quote,  # Adding this one makes no difference
-#         #     'after_colon': after_colon,  # Adding this one makes no difference
-#             'dependency_distance': dependency_distance,
-#             'dependency_path': dependency_path,
-#         }
-
-        if i > 0:
-            word1 = sentence[i - 1][5]
-            postag1 = sentence[i - 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1 = word1.lower()
-                word1_is_upper = word1.isupper()
-
-            # features.update({
-            #     '-1:word.lower()': word1.lower(),
-            #     '-1:word.isupper()': word1_is_upper,
-            #     '-1:postag': postag1,
-            #     '-1:postag[:2]': postag1[:2],
-            # })
-        else:
+        
+        if i == 0:
             features['BOS'] = True
-
-        if i < len(sentence) - 1:
-            word1 = sentence[i + 1][5]
-            postag1 = sentence[i + 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1 = word1.lower()
-                word1_is_upper = word1.isupper()
-
-            # features.update({
-            #     '+1:word.lower()': word1.lower(),
-            #     '+1:word.isupper()': word1_is_upper,
-            #     '+1:postag': postag1,
-            #     '+1:postag[:2]': postag1[:2],
-            # })
-        else:
+        elif i == len(sentence) -1:
             features['EOS'] = True
 
         return features
@@ -122,7 +37,6 @@ class CRF(object):
 
     def extract_sents_from_conll(self, inputfile):
 
-        # csvinput = open(f'CRF/Preprocessed_data/{inputfile}', 'r')
         csvinput = open(f'Preprocessed_data/{inputfile}', 'r', encoding="utf-8")
         csvreader = csv.reader(csvinput, delimiter='\t')
         # First consume header row
@@ -136,29 +50,20 @@ class CRF(object):
                 sents.append(current_sent)
                 current_sent = []
             current_sent.append(tuple(row))
-
         # Add last row of file
         sents.append(current_sent)
+#         for row in csvreader:
+#             current_sent.append(tuple(row))
+#             # After each sentence there is a special token: Sent_end. Its label is O. It was added in the preprocessing step.
+#             if row[5] == "Sent_end":
+#                 sents.append(current_sent)
+#                 current_sent = []
 
         # Close file
         csvinput.close()
 
         return sents  # header is sliced
 
-    # def extract_sents_from_conll(inputfile):
-    #     '''Read the data from tsv file, return sentences as tokens with corresponding labels.'''
-    #
-    #     rows = csv.reader(open(inputfile, encoding="utf-8"), delimiter='\t')
-    #     sents = []
-    #     current_sent = []
-    #     for row in rows:
-    #         current_sent.append(tuple(row))
-    #         # After each sentence there is a special token: Sent_end. Its label is O. It was added in the preprocessing step.
-    #         if row[0] == "Sent_end":
-    #             sents.append(current_sent)
-    #             current_sent = []
-    #
-    #     return sents
 
     def train_crf_model(self, X_train, y_train):
 
@@ -295,105 +200,10 @@ class FeaturesCRF(CRF):
         dep_label = sentence[i][8]
         in_quote = sentence[i][11]
         after_colon = sentence[i][12]
-        # constituent_path
         dependency_distance = sentence[i][13]
         dependency_path = sentence[i][14]
-
-        word_is_upper = ''
-        if word:
-            word = word.lower()
-            word_is_upper = word.isupper()
-        # else:
-        #     print(sentence)
-
-        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
-        if i - 2 >= 0:
-            prev_prev_lemma = sentence[i-2][7]
-        if i - 1 >= 0:
-            prev_lemma = sentence[i-1][7]
-        if i + 2 < len(sentence):
-            next_next_lemma = sentence[i+2][7]
-        if i + 1 < len(sentence):
-            next_lemma = sentence[i+1][7]
-
-        # # Schermafbeelding 2021-06-20 om 00.03.42
-        # features = {
-        #     'bias': 1.0,
-        #     'token': lemma.lower(),
-        #     'postag': postag,
-        #     'dep_label': dep_label,
-        #     'nr_in_sentence': nr_in_sentence,
-        # }
-
-        features = {
-            'bias': 1.0,
-            'token': word,
-            'word.isupper()': word_is_upper,
-            'postag': postag,
-            'postag[:2]': postag[:2],
-            'prev_prev_lemma': prev_prev_lemma,
-            'prev_lemma': prev_lemma,
-            'next_next_lemma': next_next_lemma,
-            'next_lemma': next_lemma,
-            'dep_label': dep_label,
-            'nr_in_sentence': nr_in_sentence,
-            'in_quote': in_quote,
-            'after_colon': after_colon,
-            'dependency_distance': dependency_distance,
-            'dependency_path': dependency_path,
-        }
-
-        if i > 0:
-            word1 = sentence[i - 1][5]
-            postag1 = sentence[i - 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1 = word1.lower()
-                word1_is_upper = word1.isupper()
-
-            # features.update({
-            #     '-1:word.lower()': word1.lower(),
-            #     '-1:word.isupper()': word1_is_upper,
-            #     '-1:postag': postag1,
-            #     '-1:postag[:2]': postag1[:2],
-            # })
-        else:
-            features['BOS'] = True
-
-        if i < len(sentence) - 1:
-            word1 = sentence[i + 1][5]
-            postag1 = sentence[i + 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1 = word1.lower()
-                word1_is_upper = word.isupper()
-
-            # features.update({
-            #     '+1:word.lower()': word1.lower(),
-            #     '+1:word.isupper()': word1_is_upper,
-            #     '+1:postag': postag1,
-            #     '+1:postag[:2]': postag1[:2],
-            # })
-        else:
-            features['EOS'] = True
-
-        return features
-
-
-class Features2CRF(CRF):
-    def token2features(self, sentence, i):
-        nr_in_sentence = sentence[i][3]
-        word = sentence[i][5]
-        postag = sentence[i][7]
-        dep_label = sentence[i][8]
-        in_quote = sentence[i][11]
-        after_colon = sentence[i][12]
         # constituent_path
-        dependency_distance = sentence[i][13]
-        dependency_path = sentence[i][14]
-
+        
         word_is_upper = ''
         if word:
             word = word.lower()
@@ -419,6 +229,85 @@ class Features2CRF(CRF):
             'prev_postag': prev_postag,
             'next_next_postag': next_next_postag,
             'next_postag': next_postag,
+            'dep_label': dep_label,
+            'nr_in_sentence': nr_in_sentence,
+            'in_quote': in_quote,
+            'after_colon': after_colon,
+            'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
+        }
+
+        if i == 0:
+            features['BOS'] = True
+        elif i == len(sentence) -1:
+            features['EOS'] = True
+
+        return features
+
+
+class Features2CRF(CRF):
+    def train_crf_model(self, X_train, y_train):
+        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+
+        crf = sklearn_crfsuite.CRF(
+            algorithm='l2sgd',
+            c2=0.1,
+            max_iterations=100,
+            all_possible_transitions=True
+        )
+        crf.fit(X_train, y_train)
+
+        return crf
+
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+        # constituent_path
+
+        word_is_upper = ''
+        if word:
+            word = word.lower()
+            word_is_upper = word.isupper()
+
+#         prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
+#         if i - 2 >= 0:
+#             prev_prev_postag = sentence[i-2][7]
+#         if i - 1 >= 0:
+#             prev_postag = sentence[i-1][7]
+#         if i + 2 < len(sentence):
+#             next_next_postag = sentence[i+2][7]
+#         if i + 1 < len(sentence):
+#             next_postag = sentence[i+1][7]
+        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_lemma = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_lemma = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_lemma = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_lemma = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+            'token': word,
+            'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+#             'prev_prev_postag': prev_prev_postag,
+#             'prev_postag': prev_postag,
+#             'next_next_postag': next_next_postag,
+#             'next_postag': next_postag,
+            'prev_prev_lemma': prev_prev_lemma,
+            'prev_lemma': prev_lemma,
+            'next_next_lemma': next_next_lemma,
+            'next_lemma': next_lemma,
             'dep_label': dep_label,
             'nr_in_sentence': nr_in_sentence,
             'in_quote': in_quote,
@@ -475,9 +364,9 @@ class Features3CRF(CRF):
         dep_label = sentence[i][8]
         in_quote = sentence[i][11]
         after_colon = sentence[i][12]
-        # constituent_path
         dependency_distance = sentence[i][13]
         dependency_path = sentence[i][14]
+        # constituent_path
 
         word_is_upper = ''
         if word:
@@ -508,8 +397,8 @@ class Features3CRF(CRF):
             'nr_in_sentence': nr_in_sentence,
 #             'in_quote': in_quote,
 #             'after_colon': after_colon,
-            'dependency_distance': dependency_distance,
-            'dependency_path': dependency_path,
+            'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
         }
 
         if i > 0:
@@ -603,10 +492,10 @@ class Features4CRF(CRF):
         dep_label = sentence[i][8]
         in_quote = sentence[i][11]
         after_colon = sentence[i][12]
-        # constituent_path
         dependency_distance = sentence[i][13]
         dependency_path = sentence[i][14]
         is_cue_lemma = (lemma in self.cue_lemmas)
+        # constituent_path
         
         word_is_upper = ''
         if word:
@@ -637,8 +526,8 @@ class Features4CRF(CRF):
             'nr_in_sentence': nr_in_sentence,
             'in_quote': in_quote,
             'after_colon': after_colon,
-            'dependency_distance': dependency_distance,
-            'dependency_path': dependency_path,
+            'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
             'is_cue_lemma': is_cue_lemma,
         }
 
@@ -671,6 +560,617 @@ class Features4CRF(CRF):
 
             features.update({
 #                 '+1:word.lower()': word1.lower(),
+                '+1:word.isupper()': word1_is_upper,
+                '+1:postag': postag1,
+                '+1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['EOS'] = True
+
+        return features
+
+
+class Features5CRF(CRF):
+    def train_crf_model(self, X_train, y_train):
+        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+
+        crf = sklearn_crfsuite.CRF(
+            algorithm='l2sgd',
+            c2=0.1,
+            max_iterations=100,
+            all_possible_transitions=True
+        )
+        crf.fit(X_train, y_train)
+
+        return crf
+
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+        # constituent_path
+
+        word_is_upper = ''
+        if word:
+            word = word.lower()
+            word_is_upper = word.isupper()
+
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_postag = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_postag = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_postag = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_postag = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+            'token': word,
+            'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
+            'dep_label': dep_label,
+            'nr_in_sentence': nr_in_sentence,
+#             'in_quote': in_quote,
+#             'after_colon': after_colon,
+#             'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
+        }
+
+        if i > 0:
+            word1 = sentence[i - 1][5]
+            postag1 = sentence[i - 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word1.isupper()
+
+            features.update({
+                '-1:word.lower()': word1.lower(),
+                '-1:word.isupper()': word1_is_upper,
+                '-1:postag': postag1,
+                '-1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['BOS'] = True
+
+        if i < len(sentence) - 1:
+            word1 = sentence[i + 1][5]
+            postag1 = sentence[i + 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word1.isupper()
+
+            features.update({
+                '+1:word.lower()': word1.lower(),
+                '+1:word.isupper()': word1_is_upper,
+                '+1:postag': postag1,
+                '+1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['EOS'] = True
+
+        return features
+    
+    
+class Features6CRF(CRF):
+    def train_crf_model(self, X_train, y_train):
+        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+
+        crf = sklearn_crfsuite.CRF(
+            algorithm='l2sgd',
+            c2=0.1,
+            max_iterations=100,
+            all_possible_transitions=True
+        )
+        crf.fit(X_train, y_train)
+
+        return crf
+
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+        # constituent_path
+
+        word_is_upper = ''
+        if word:
+            word = word.lower()
+            word_is_upper = word.isupper()
+
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_postag = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_postag = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_postag = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_postag = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+            'token': word,
+            'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
+            'dep_label': dep_label,
+#             'nr_in_sentence': nr_in_sentence,
+#             'in_quote': in_quote,
+#             'after_colon': after_colon,
+            'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
+        }
+
+        if i > 0:
+            word1 = sentence[i - 1][5]
+            postag1 = sentence[i - 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word1.isupper()
+
+            features.update({
+                '-1:word.lower()': word1.lower(),
+                '-1:word.isupper()': word1_is_upper,
+                '-1:postag': postag1,
+                '-1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['BOS'] = True
+
+        if i < len(sentence) - 1:
+            word1 = sentence[i + 1][5]
+            postag1 = sentence[i + 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word1.isupper()
+
+            features.update({
+                '+1:word.lower()': word1.lower(),
+                '+1:word.isupper()': word1_is_upper,
+                '+1:postag': postag1,
+                '+1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['EOS'] = True
+
+        return features
+
+    
+class Features7CRF(CRF):
+    def train_crf_model(self, X_train, y_train):
+        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+
+        crf = sklearn_crfsuite.CRF(
+            algorithm='l2sgd',
+            c2=0.1,
+            max_iterations=100,
+            all_possible_transitions=True
+        )
+        crf.fit(X_train, y_train)
+
+        return crf
+
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+        # constituent_path
+
+        word_is_upper = ''
+        if word:
+            word = word.lower()
+            word_is_upper = word.isupper()
+
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_postag = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_postag = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_postag = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_postag = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+            'token': word,
+#             'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
+            'dep_label': dep_label,
+            'nr_in_sentence': nr_in_sentence,
+#             'in_quote': in_quote,
+#             'after_colon': after_colon,
+            'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
+        }
+
+        if i > 0:
+            word1 = sentence[i - 1][5]
+            postag1 = sentence[i - 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word1.isupper()
+
+            features.update({
+                '-1:word.lower()': word1.lower(),
+#                 '-1:word.isupper()': word1_is_upper,
+                '-1:postag': postag1,
+                '-1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['BOS'] = True
+
+        if i < len(sentence) - 1:
+            word1 = sentence[i + 1][5]
+            postag1 = sentence[i + 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word1.isupper()
+
+            features.update({
+                '+1:word.lower()': word1.lower(),
+#                 '+1:word.isupper()': word1_is_upper,
+                '+1:postag': postag1,
+                '+1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['EOS'] = True
+
+        return features
+
+
+# Only renamed some features in comparison to Features2CRF
+class Features8CRF(CRF):
+    def train_crf_model(self, X_train, y_train):
+        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+
+        crf = sklearn_crfsuite.CRF(
+            algorithm='l2sgd',
+            c2=0.1,
+            max_iterations=100,
+            all_possible_transitions=True
+        )
+        crf.fit(X_train, y_train)
+
+        return crf
+
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+        # constituent_path
+
+        word_is_upper = ''
+        if word:
+            word = word.lower()
+            word_is_upper = word.isupper()
+
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_postag = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_postag = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_postag = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_postag = sentence[i+1][7]
+#         prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+#         if i - 2 >= 0:
+#             prev_prev_lemma = sentence[i-2][7]
+#         if i - 1 >= 0:
+#             prev_lemma = sentence[i-1][7]
+#         if i + 2 < len(sentence):
+#             next_next_lemma = sentence[i+2][7]
+#         if i + 1 < len(sentence):
+#             next_lemma = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+            'token': word,
+            'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
+#             'prev_prev_lemma': prev_prev_lemma,
+#             'prev_lemma': prev_lemma,
+#             'next_next_lemma': next_next_lemma,
+#             'next_lemma': next_lemma,
+            'dep_label': dep_label,
+            'nr_in_sentence': nr_in_sentence,
+            'in_quote': in_quote,
+            'after_colon': after_colon,
+#             'dependency_distance': dependency_distance,
+#             'dependency_path': dependency_path,
+            'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
+        }
+
+        if i > 0:
+            word1 = sentence[i - 1][5]
+            postag1 = sentence[i - 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word1.isupper()
+
+            features.update({
+                '-1:word.lower()': word1.lower(),
+                '-1:word.isupper()': word1_is_upper,
+                '-1:postag': postag1,
+                '-1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['BOS'] = True
+
+        if i < len(sentence) - 1:
+            word1 = sentence[i + 1][5]
+            postag1 = sentence[i + 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word1.isupper()
+
+            features.update({
+                '+1:word.lower()': word1.lower(),
+                '+1:word.isupper()': word1_is_upper,
+                '+1:postag': postag1,
+                '+1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['EOS'] = True
+
+        return features
+
+    
+class Features9CRF(CRF):
+    def train_crf_model(self, X_train, y_train):
+        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+
+        crf = sklearn_crfsuite.CRF(
+            algorithm='l2sgd',
+            c2=0.1,
+            max_iterations=100,
+            all_possible_transitions=True
+        )
+        crf.fit(X_train, y_train)
+
+        return crf
+
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+        # constituent_path
+
+        word_is_upper = ''
+        if word:
+            word_is_upper = word[0].isupper()
+            word = word.lower()
+            
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_postag = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_postag = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_postag = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_postag = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+            'token': word,
+            'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
+            'dep_label': dep_label,
+            'nr_in_sentence': nr_in_sentence,
+            'in_quote': in_quote,
+            'after_colon': after_colon,
+            'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
+        }
+
+        if i > 0:
+            word1 = sentence[i - 1][5]
+            postag1 = sentence[i - 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1_is_upper = word1[0].isupper()
+                word1 = word1.lower()
+                
+            features.update({
+                '-1:word.lower()': word1.lower(),
+                '-1:word.isupper()': word1_is_upper,
+                '-1:postag': postag1,
+                '-1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['BOS'] = True
+
+        if i < len(sentence) - 1:
+            word1 = sentence[i + 1][5]
+            postag1 = sentence[i + 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1_is_upper = word1[0].isupper()
+                word1 = word1.lower()
+                
+            features.update({
+                '+1:word.lower()': word1.lower(),
+                '+1:word.isupper()': word1_is_upper,
+                '+1:postag': postag1,
+                '+1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['EOS'] = True
+
+        return features
+
+    
+class Features10CRF(CRF):
+    def train_crf_model(self, X_train, y_train):
+        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+
+        crf = sklearn_crfsuite.CRF(
+            algorithm='l2sgd',
+            c2=0.1,
+            max_iterations=100,
+            all_possible_transitions=True
+        )
+        crf.fit(X_train, y_train)
+
+        return crf
+
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
+        word = sentence[i][5]
+        postag = sentence[i][7]
+        dep_label = sentence[i][8]
+        in_quote = sentence[i][11]
+        after_colon = sentence[i][12]
+        dependency_distance = sentence[i][13]
+        dependency_path = sentence[i][14]
+        # constituent_path
+
+        word_is_upper = ''
+        if word:
+            word = word.lower()
+            word_is_upper = word.isupper()
+
+#         prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
+#         if i - 2 >= 0:
+#             prev_prev_postag = sentence[i-2][7]
+#         if i - 1 >= 0:
+#             prev_postag = sentence[i-1][7]
+#         if i + 2 < len(sentence):
+#             next_next_postag = sentence[i+2][7]
+#         if i + 1 < len(sentence):
+#             next_postag = sentence[i+1][7]
+        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        if i - 2 >= 0:
+            prev_prev_lemma = sentence[i-2][7]
+        if i - 1 >= 0:
+            prev_lemma = sentence[i-1][7]
+        if i + 2 < len(sentence):
+            next_next_lemma = sentence[i+2][7]
+        if i + 1 < len(sentence):
+            next_lemma = sentence[i+1][7]
+
+        features = {
+            'bias': 1.0,
+            'token': word,
+            'word.isupper()': word_is_upper,
+            'postag': postag,
+            'postag[:2]': postag[:2],
+#             'prev_prev_postag': prev_prev_postag,
+#             'prev_postag': prev_postag,
+#             'next_next_postag': next_next_postag,
+#             'next_postag': next_postag,
+            'prev_prev_lemma': prev_prev_lemma,
+            'prev_lemma': prev_lemma,
+            'next_next_lemma': next_next_lemma,
+            'next_lemma': next_lemma,
+            'dep_label': dep_label,
+            'nr_in_sentence': nr_in_sentence,
+            'in_quote': in_quote,
+            'after_colon': after_colon,
+            'dependency_distance': dependency_distance,
+            'dependency_path': dependency_path,
+        }
+
+        if i > 0:
+            word1 = sentence[i - 1][5]
+            postag1 = sentence[i - 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word.isupper()
+
+            features.update({
+                '-1:word.lower()': word1.lower(),
+                '-1:word.isupper()': word1_is_upper,
+                '-1:postag': postag1,
+                '-1:postag[:2]': postag1[:2],
+            })
+        else:
+            features['BOS'] = True
+
+        if i < len(sentence) - 1:
+            word1 = sentence[i + 1][5]
+            postag1 = sentence[i + 1][7]
+
+            word1_is_upper = ''
+            if word1:
+                word1 = word1.lower()
+                word1_is_upper = word.isupper()
+
+            features.update({
+                '+1:word.lower()': word1.lower(),
                 '+1:word.isupper()': word1_is_upper,
                 '+1:postag': postag1,
                 '+1:postag[:2]': postag1[:2],
@@ -777,8 +1277,8 @@ class FeaturesEmbeddingCRF(EmbeddingCRF):
             'nr_in_sentence': nr_in_sentence,
 #             'in_quote': in_quote,  # Made no difference
 #             'after_colon': after_colon,  # Made no difference
-            'dependency_distance': dependency_distance,
-            'dependency_path': dependency_path,
+            'dep_distance': dependency_distance,
+            'dep_path': dependency_path,
         }
 
         # Add word embeddings
