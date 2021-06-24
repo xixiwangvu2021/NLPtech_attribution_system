@@ -31,12 +31,8 @@ class CRF(object):
 
     def sent2labels(self, sent):
         # if you added features to your input file, make sure to add them here as well.
-        # return [label for token, label in sent]
-#       # return [label for article_name, sentence_nr, nr_in_file, nr_in_sentence, fromto, word, lemma, postag, dep_label,
-#        #                  token_dep_head, label, in_quote, after_colon, dep_distance, dep_path in sent]
         return [label for article_name, sentence_nr, nr_in_file, nr_in_sentence, fromto, word, lemma, postag, dep_label,
                           token_dep_head, label in sent]
-
 
     def extract_sents_from_conll(self, inputfile):
 
@@ -46,21 +42,21 @@ class CRF(object):
         headers = next(csvreader)
         sents = []
         current_sent = []
-        for i, row in enumerate(csvreader):
-            # note that this is a simplification that works well for this particular data, in other situations,
-            # you may need to do more advanced preprocessing to identify sentence boundaries
-            if row[3] == "1" and row[2] != "1":
-                sents.append(current_sent)
-                current_sent = []
-            current_sent.append(tuple(row))
-        # Add last row of file
-        sents.append(current_sent)
-#         for row in csvreader:
-#             current_sent.append(tuple(row))
-#             # After each sentence there is a special token: Sent_end. Its label is O. It was added in the preprocessing step.
-#             if row[5] == "Sent_end":
+#         for i, row in enumerate(csvreader):
+#             # note that this is a simplification that works well for this particular data, in other situations,
+#             # you may need to do more advanced preprocessing to identify sentence boundaries
+#             if row[3] == "1" and row[2] != "1":
 #                 sents.append(current_sent)
 #                 current_sent = []
+#             current_sent.append(tuple(row))
+#         # Add last row of file
+#         sents.append(current_sent)
+        for row in csvreader:
+            current_sent.append(tuple(row))
+            # After each sentence there is a special token: Sent_end. Its label is O. It was added in the preprocessing step.
+            if row[5] == "Sent_end":
+                sents.append(current_sent)
+                current_sent = []
 
         # Close file
         csvinput.close()
@@ -193,7 +189,27 @@ class CRF(object):
         self.report_evaluation(labels, y_test, y_pred, outputfile)
 
         
-class FeaturesCRF(CRF):
+class BaseFeaturesCRF(CRF):
+    def sent2labels(self, sent):
+        # if you added features to your input file, make sure to add them here as well.
+        return [label for article_name, sentence_nr, nr_in_file, nr_in_sentence, fromto, word, lemma, postag,
+                dep_label, token_dep_head, label, in_quote, after_colon, dep_distance, dep_path in sent]
+
+    def train_crf_model(self, X_train, y_train):
+        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+
+        crf = sklearn_crfsuite.CRF(
+            algorithm='l2sgd',
+            c2=0.1,
+            max_iterations=100,
+            all_possible_transitions=True
+        )
+        crf.fit(X_train, y_train)
+
+        return crf
+
+    
+class FeaturesCRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
         # print(sentence)
 
@@ -248,20 +264,7 @@ class FeaturesCRF(CRF):
         return features
 
 
-class Features2CRF(CRF):
-    def train_crf_model(self, X_train, y_train):
-        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
-
-        crf = sklearn_crfsuite.CRF(
-            algorithm='l2sgd',
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
-        crf.fit(X_train, y_train)
-
-        return crf
-
+class Features2CRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
         nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
@@ -358,7 +361,7 @@ class Features2CRF(CRF):
         return features
 
     
-class Features3CRF(CRF):
+class Features3CRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
 
         nr_in_sentence = sentence[i][3]
@@ -483,7 +486,7 @@ class Features3CRF(CRF):
         return features
     
 
-class Features4CRF(CRF):
+class Features4CRF(BaseFeaturesCRF):
     cue_lemmas = ['say', 'be', 'to', 'have', 'tell', 'call', 'write', 'accord', 'add', 'ask', 'show', 'support', 'note', 
                   'report', 'suggest', 'argue', 'expect', 'report', 'believe', 'agree', 'think', 'announce', 'cite', 'suggest']
     
@@ -573,20 +576,7 @@ class Features4CRF(CRF):
         return features
 
 
-class Features5CRF(CRF):
-    def train_crf_model(self, X_train, y_train):
-        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
-
-        crf = sklearn_crfsuite.CRF(
-            algorithm='l2sgd',
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
-        crf.fit(X_train, y_train)
-
-        return crf
-
+class Features5CRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
         nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
@@ -670,20 +660,7 @@ class Features5CRF(CRF):
         return features
     
     
-class Features6CRF(CRF):
-    def train_crf_model(self, X_train, y_train):
-        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
-
-        crf = sklearn_crfsuite.CRF(
-            algorithm='l2sgd',
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
-        crf.fit(X_train, y_train)
-
-        return crf
-
+class Features6CRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
         nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
@@ -767,20 +744,7 @@ class Features6CRF(CRF):
         return features
 
     
-class Features7CRF(CRF):
-    def train_crf_model(self, X_train, y_train):
-        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
-
-        crf = sklearn_crfsuite.CRF(
-            algorithm='l2sgd',
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
-        crf.fit(X_train, y_train)
-
-        return crf
-
+class Features7CRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
         nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
@@ -865,20 +829,7 @@ class Features7CRF(CRF):
 
 
 # Only renamed some features in comparison to Features2CRF
-class Features8CRF(CRF):
-    def train_crf_model(self, X_train, y_train):
-        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
-
-        crf = sklearn_crfsuite.CRF(
-            algorithm='l2sgd',
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
-        crf.fit(X_train, y_train)
-
-        return crf
-
+class Features8CRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
         nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
@@ -977,20 +928,7 @@ class Features8CRF(CRF):
         return features
 
     
-class Features9CRF(CRF):
-    def train_crf_model(self, X_train, y_train):
-        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
-
-        crf = sklearn_crfsuite.CRF(
-            algorithm='l2sgd',
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
-        crf.fit(X_train, y_train)
-
-        return crf
-
+class Features9CRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
         nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
@@ -1074,20 +1012,7 @@ class Features9CRF(CRF):
         return features
 
     
-class Features10CRF(CRF):
-    def train_crf_model(self, X_train, y_train):
-        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
-
-        crf = sklearn_crfsuite.CRF(
-            algorithm='l2sgd',
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
-        crf.fit(X_train, y_train)
-
-        return crf
-
+class Features10CRF(BaseFeaturesCRF):
     def token2features(self, sentence, i):
         nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
@@ -1184,7 +1109,7 @@ class Features10CRF(CRF):
         return features
 
     
-class EmbeddingCRF(CRF):
+class BaseEmbeddingCRF(CRF):
     def __init__(self, nr_model_dimensions, **kwargs):
         """
         Args:
@@ -1192,7 +1117,7 @@ class EmbeddingCRF(CRF):
             evaluationfile (string): the.
             outputfile (string): the.
         """
-        super(EmbeddingCRF, self).__init__(**kwargs)
+        super(BaseEmbeddingCRF, self).__init__(**kwargs)
         self.model = KeyedVectors.load_word2vec_format(f'glove.6B.{str(nr_model_dimensions)}d.w2vformat.txt')
         self.nr_model_dimensions = nr_model_dimensions
     
@@ -1208,8 +1133,10 @@ class EmbeddingCRF(CRF):
             # returns zeros array
             vector = np.zeros(self.nr_model_dimensions,)
 
-        return vector   
-
+        return vector
+    
+    
+class EmbeddingCRF(BaseEmbeddingCRF):
     def token2features(self, sentence, i):
         '''Get tokens in the sentence, add bias, token and word embeddings as features and return all as a feature dictionary.'''
 
@@ -1236,26 +1163,62 @@ class EmbeddingCRF(CRF):
             
         return features
 
-
-class FeaturesEmbeddingCRF(EmbeddingCRF):
+    
+class Embedding2CRF(BaseEmbeddingCRF):
     def token2features(self, sentence, i):
         '''Get tokens in the sentence, add bias, token and word embeddings as features and return all as a feature dictionary.'''
 
-        nr_in_sentence = sentence[i][3]  # Normalize
+        word = sentence[i][5]
+        lemma = sentence[i][6]
+        wordembedding = self.get_features(lemma)  ## word embedding vector 
+        wordembedding = np.array(wordembedding)  ## vectors
+        
+        if word:
+            word = word.lower()
+
+        features = {
+            'bias': 1.0,
+            'token': word
+        }
+
+        for iv,value in enumerate(wordembedding):
+            features['v{}'.format(iv)] = value
+
+        if i == 0:
+            features['BOS'] = True
+
+        elif i == len(sentence) -1:
+            features['EOS'] = True
+            
+        return features
+
+
+class Features2Embedding2CRF(BaseFeaturesCRF, BaseEmbeddingCRF):
+    def token2features(self, sentence, i):
+        nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
         postag = sentence[i][7]
         dep_label = sentence[i][8]
         in_quote = sentence[i][11]
         after_colon = sentence[i][12]
-        # constituent_path
         dependency_distance = sentence[i][13]
         dependency_path = sentence[i][14]
+        # constituent_path
 
         word_is_upper = ''
         if word:
             word = word.lower()
             word_is_upper = word.isupper()
 
+#         prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
+#         if i - 2 >= 0:
+#             prev_prev_postag = sentence[i-2][7]
+#         if i - 1 >= 0:
+#             prev_postag = sentence[i-1][7]
+#         if i + 2 < len(sentence):
+#             next_next_postag = sentence[i+2][7]
+#         if i + 1 < len(sentence):
+#             next_postag = sentence[i+1][7]
         prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
         if i - 2 >= 0:
             prev_prev_lemma = sentence[i-2][7]
@@ -1272,25 +1235,30 @@ class FeaturesEmbeddingCRF(EmbeddingCRF):
             'word.isupper()': word_is_upper,
             'postag': postag,
             'postag[:2]': postag[:2],
+#             'prev_prev_postag': prev_prev_postag,
+#             'prev_postag': prev_postag,
+#             'next_next_postag': next_next_postag,
+#             'next_postag': next_postag,
             'prev_prev_lemma': prev_prev_lemma,
             'prev_lemma': prev_lemma,
             'next_next_lemma': next_next_lemma,
             'next_lemma': next_lemma,
             'dep_label': dep_label,
             'nr_in_sentence': nr_in_sentence,
-#             'in_quote': in_quote,  # Made no difference
-#             'after_colon': after_colon,  # Made no difference
-            'dep_distance': dependency_distance,
-            'dep_path': dependency_path,
+            'in_quote': in_quote,
+            'after_colon': after_colon,
+            'dependency_distance': dependency_distance,
+            'dependency_path': dependency_path,
         }
 
         # Add word embeddings
-        wordembedding = self.get_features(word)  ## word embedding vector 
+        wordembedding = self.get_features(lemma)  ## word embedding vector 
         wordembedding = np.array(wordembedding)  ## vectors
 
         for iv,value in enumerate(wordembedding):
             features['v{}'.format(iv)] = value
 
+        # Features from previous and next word in sentence.
         if i > 0:
             word1 = sentence[i - 1][5]
             postag1 = sentence[i - 1][7]
