@@ -32,7 +32,7 @@ class CRF(object):
     def sent2labels(self, sent):
         # if you added features to your input file, make sure to add them here as well.
         return [label for article_name, sentence_nr, nr_in_file, nr_in_sentence, fromto, word, lemma, postag, dep_label,
-                          token_dep_head, label in sent]
+                token_dep_head, label in sent]
 
     def extract_sents_from_conll(self, inputfile):
 
@@ -1197,6 +1197,7 @@ class Features2Embedding2CRF(BaseFeaturesCRF, BaseEmbeddingCRF):
     def token2features(self, sentence, i):
         nr_in_sentence = sentence[i][3]
         word = sentence[i][5]
+        lemma = sentence[i][6]
         postag = sentence[i][7]
         dep_label = sentence[i][8]
         in_quote = sentence[i][11]
