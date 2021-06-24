@@ -32,8 +32,11 @@ class CRF(object):
     def sent2labels(self, sent):
         # if you added features to your input file, make sure to add them here as well.
         # return [label for token, label in sent]
+#       # return [label for article_name, sentence_nr, nr_in_file, nr_in_sentence, fromto, word, lemma, postag, dep_label,
+#        #                  token_dep_head, label, in_quote, after_colon, dep_distance, dep_path in sent]
         return [label for article_name, sentence_nr, nr_in_file, nr_in_sentence, fromto, word, lemma, postag, dep_label,
-                          token_dep_head, label, in_quote, after_colon, dep_distance, dep_path in sent]
+                          token_dep_head, label in sent]
+
 
     def extract_sents_from_conll(self, inputfile):
 
