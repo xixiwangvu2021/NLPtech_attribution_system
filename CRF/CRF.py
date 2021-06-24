@@ -36,7 +36,7 @@ class CRF(object):
 
     def extract_sents_from_conll(self, inputfile):
 
-        csvinput = open(f'Preprocessed_data/{inputfile}', 'r', encoding="utf-8")
+        csvinput = open(f'Preprocessed_data/{inputfile}', 'r', encoding="latin-1")
         csvreader = csv.reader(csvinput, delimiter='\t')
         # First consume header row
         headers = next(csvreader)
@@ -118,7 +118,7 @@ class CRF(object):
  
     def write_out_evaluation(self, eval_data, pred_labels, outputfile):
         
-        outfile = open(f'Result/{outputfile}', 'w')
+        outfile = open(f'Result/{outputfile}', 'w', encoding="latin-1")
         headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
                    "Dep_label", "Token_dep_head", "AR_label"]
         # headers = ['Word', 'pred_AR_label']
@@ -137,7 +137,7 @@ class CRF(object):
         
     def write_out_evaluation_diff(self, eval_data, pred_labels, outputfile):
         
-        outfile = open(f'Result/Diff/{outputfile}', 'w')
+        outfile = open(f'Result/Diff/{outputfile}', 'w', encoding="latin-1")
         headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
                    "Dep_label", "Token_dep_head", "AR_label", "Pred_AR_label"]
         header_row = '\t'.join(headers) + '\n'
@@ -160,7 +160,7 @@ class CRF(object):
         
         outputfile = outputfile.replace('.csv', '.txt')
 
-        with open(f'Result/Evaluation/{outputfile}', 'w') as f:
+        with open(f'Result/Evaluation/{outputfile}', 'w', encoding="latin-1") as f:
             sys.stdout = f    
                   
             print('The predictions are written on the output file.')
@@ -195,18 +195,18 @@ class BaseFeaturesCRF(CRF):
         return [label for article_name, sentence_nr, nr_in_file, nr_in_sentence, fromto, word, lemma, postag,
                 dep_label, token_dep_head, label, in_quote, after_colon, dep_distance, dep_path in sent]
 
-    def train_crf_model(self, X_train, y_train):
-        '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
+#     def train_crf_model(self, X_train, y_train):
+#         '''Compile and fit the model with - Stochastic Gradient Descent with L2 regularization term'''
 
-        crf = sklearn_crfsuite.CRF(
-            algorithm='l2sgd',
-            c2=0.1,
-            max_iterations=100,
-            all_possible_transitions=True
-        )
-        crf.fit(X_train, y_train)
+#         crf = sklearn_crfsuite.CRF(
+#             algorithm='l2sgd',
+#             c2=0.1,
+#             max_iterations=100,
+#             all_possible_transitions=True
+#         )
+#         crf.fit(X_train, y_train)
 
-        return crf
+#         return crf
 
     
 class FeaturesCRF(BaseFeaturesCRF):
