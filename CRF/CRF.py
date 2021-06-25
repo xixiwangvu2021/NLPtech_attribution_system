@@ -36,8 +36,9 @@ class CRF(object):
 
     def extract_sents_from_conll(self, inputfile):
 
-        csvinput = open(f'Preprocessed_data/{inputfile}', 'r', encoding="latin-1")
-        csvreader = csv.reader(csvinput, delimiter='\t')
+        csvinput = open(f'Preprocessed_data/{inputfile}', 'r', encoding="utf-8")
+#         csvreader = csv.reader(csvinput, delimiter='\t')
+        csvreader = csv.reader(csvinput, delimiter='|')
         # First consume header row
         headers = next(csvreader)
         sents = []
@@ -102,7 +103,8 @@ class CRF(object):
         headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
                    "Dep_label", "Token_dep_head", "AR_label"]
         # headers = ['Word', 'pred_AR_label']
-        header_row = '\t'.join(headers) + '\n'
+#         header_row = '\t'.join(headers) + '\n'
+        header_row = '|'.join(headers) + '\n'
 
         outfile.write(header_row)
 
@@ -110,7 +112,8 @@ class CRF(object):
             for data, pred in zip(evalsents, predsents):
                 # Data: from tuple to string separated string, except for the gold label from the original file
                 data_tsv = '\t'.join(list(data)[:10])
-                outfile.write(data_tsv + "\t" + pred + "\n")
+#                 outfile.write(data_tsv + "\t" + pred + "\n")
+                outfile.write(data_tsv + "|" + pred + "\n")
                 # Why last line not written?
 
         # Close file
@@ -118,29 +121,34 @@ class CRF(object):
  
     def write_out_evaluation(self, eval_data, pred_labels, outputfile):
         
-        outfile = open(f'Result/{outputfile}', 'w', encoding="latin-1")
+        outfile = open(f'Result/{outputfile}', 'w', encoding="utf-8")
         headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
                    "Dep_label", "Token_dep_head", "AR_label"]
         # headers = ['Word', 'pred_AR_label']
-        header_row = '\t'.join(headers) + '\n'
+#         header_row = '\t'.join(headers) + '\n'
+        header_row = '|'.join(headers) + '\n'
+
 
         outfile.write(header_row)
 
         for evalsents, predsents in zip(eval_data, pred_labels):
             for data, pred in zip(evalsents, predsents):
                 # Data: from tuple to string separated string, except for the gold label from the original file
-                data_tsv = '\t'.join(list(data)[:10])
-                outfile.write(data_tsv + "\t" + pred + "\n")
+#                 data_tsv = '\t'.join(list(data)[:10])
+#                 outfile.write(data_tsv + "\t" + pred + "\n")
+                data_tsv = '|'.join(list(data)[:10])
+                outfile.write(data_tsv + "|" + pred + "\n")
 
         # Close file
         outfile.close()
         
     def write_out_evaluation_diff(self, eval_data, pred_labels, outputfile):
         
-        outfile = open(f'Result/Diff/{outputfile}', 'w', encoding="latin-1")
+        outfile = open(f'Result/Diff/{outputfile}', 'w', encoding="utf-8")
         headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
                    "Dep_label", "Token_dep_head", "AR_label", "Pred_AR_label"]
-        header_row = '\t'.join(headers) + '\n'
+#         header_row = '\t'.join(headers) + '\n'
+        header_row = '|'.join(headers) + '\n'
 
         outfile.write(header_row)
 
@@ -149,8 +157,10 @@ class CRF(object):
                 eval_label = data[10]
                 if eval_label != pred_label:
                     # Data: from tuple to string separated string, except for the gold label from the original file
-                    data_tsv = '\t'.join(list(data[:11]))
-                    outfile.write(data_tsv + "\t" + pred_label + "\n")
+#                     data_tsv = '\t'.join(list(data[:11]))
+#                     outfile.write(data_tsv + "\t" + pred_label + "\n")
+                    data_tsv = '|'.join(list(data[:11]))
+                    outfile.write(data_tsv + "|" + pred_label + "\n")
 
         # Close file
         outfile.close()
@@ -160,7 +170,7 @@ class CRF(object):
         
         outputfile = outputfile.replace('.csv', '.txt')
 
-        with open(f'Result/Evaluation/{outputfile}', 'w', encoding="latin-1") as f:
+        with open(f'Result/Evaluation/{outputfile}', 'w', encoding="utf-8") as f:
             sys.stdout = f    
                   
             print('The predictions are written on the output file.')
