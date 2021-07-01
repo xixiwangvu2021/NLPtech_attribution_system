@@ -20,12 +20,15 @@ The notebooks in this repository are the modules of the pipeline.
 
 All code is in Python 3.
 
-Install requirements:
-```bash
-pip install -r requirements.txt
-```
+Install requirements are included in the notebooks.
 
-Usage:
+Usage is explained through the following videos:
+
+video1 https://drive.google.com/file/d/1SDgBw7m0SQnSx3prNUS0KGb_cHJuRU3u/view?usp=sharing
+
+video2 https://drive.google.com/file/d/1q2ET9FFW16Bq2j99r8U0OKTzI7mxiqpf/view?usp=sharing
+
+video3 https://drive.google.com/file/d/1jUjo6G4SVKb3uLwnVvWPqZaqg7TlAzQh/view?usp=sharing
 
 After running through the notebooks from the beginning to the end, the following results should be given:
 
