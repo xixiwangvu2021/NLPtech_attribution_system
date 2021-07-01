@@ -6,7 +6,11 @@ The report **Processing Attribution** introduces a complete pipeline of processi
 
 Through Pre-processing, we can the data set from conll files to 'neat' csv files. The Feature extraction allows more features to be extracted for the use of the feature model. The component extraction is to parallel extract the cues, sources and contents with BIO format. Through AR extraction, we have linked the three components together. Post-processing is to transfer the output of AR extraction into conll files to be prepared for the Evaluation. In the Evaluation process, evaluation.attribution.v5.pl need to be used for the metrics for the full match of sources and contents, and the partial match of sources, contents, cues and ARs.
 
-![](images/pipeline_NLPtutorial.png)
+<img src = "images/pipeline_NLPtutorial.png">
+</p>
+<p align = "center">
+Figure 1: The system pipeline
+</p>
 
 Although our results aren't comparable with the state-of-the-art performance, yet we've successfully addressed a complete integrated AR pipeline which brings about the possibility of parallel extracting components, and on the other hand, serves as an illustrative reference for similar future work.
 
