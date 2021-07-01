@@ -25,21 +25,32 @@ Usage:
 
 After running through the notebooks from the beginning to the end, the following results should be given:
 
---------------------------------------------------------------------------------------------------------------------------------------
-                                                   gold     system         TP         FP         FN          P          R         F1
---------------------------------------------------------------------------------------------------------------------------------------
-Content full match                                2190 |     1402 |      402 |      996 |     1788 |    28.76 |    18.36 |    22.41
-Content partial match                             2190 |     1402 |     1209 |      191 |      981 |    86.36 |    55.21 |    67.36
-Content overlap-based                             2190 |     1402 |       -- |       -- |       -- |     0.83 |     0.53 |       --
---------------------------------------------------------------------------------------------------------------------------------------
-Source full match                                 1948 |     1213 |      210 |      654 |     1738 |    24.31 |    10.78 |    14.94
-Source partial match                              1948 |     1213 |      840 |      477 |     1108 |    63.78 |    43.12 |    51.45
-Source overlap-based                              1948 |     1213 |       -- |       -- |       -- |     0.79 |     0.49 |       --
---------------------------------------------------------------------------------------------------------------------------------------
-Cue partial match                                 2190 |     1439 |     1027 |      469 |     1163 |    68.65 |    46.89 |    55.72
---------------------------------------------------------------------------------------------------------------------------------------
-Content linked to source mention                  2190 |     1402 |      370 |      427 |     1820 |    46.42 |    16.89 |    24.77
---------------------------------------------------------------------------------------------------------------------------------------
+![](images/Baseline_1_3.png)
+![](images/Baseline_4_6.png)
+![](images/Embedding_1_3.png)
+![](images/Embedding_4_6.png)
+![](images/Features2_1_3.png)
+![](images/Features2_4_6.png)
 
 
+Baseline_CRF PolNeAR_PolNeAR
+Baseline_CRF PolNeAR-rm_PolNeAR
+Baseline_CRF PARC3.0_PARC3.0
+Baseline_CRF PARC3.0-rm_PARC3.0
+Baseline_CRF Merged_Merged
+Baseline_CRF Merged-rm_Merged
+
+Embedding_CRF PolNeAR_PolNeAR
+Embedding_CRF PolNeAR-rm_PolNeAR
+Embedding_CRF PARC3.0_PARC3.0
+Embedding_CRF PARC3.0-rm_PARC3.0
+Embedding_CRF Merged_Merged
+Embedding_CRF Merged-rm_Merged
+
+Features2_CRF PolNeAR_PolNeAR
+Features2_CRF PolNeAR-rm_PolNeAR
+Features2_CRF PARC3.0_PARC3.0
+Features2_CRF PARC3.0-rm_PARC3.0
+Features2_CRF Merged_Merged
+Features2_CRF Merged-rm_Merged
 
