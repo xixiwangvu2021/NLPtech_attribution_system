@@ -27,30 +27,13 @@ After running through the notebooks from the beginning to the end, the following
 
 ![](images/Baseline_1_3.png)
 ![](images/Baseline_4_6.png)
+
+
 ![](images/Embedding_1_3.png)
 ![](images/Embedding_4_6.png)
+
+
 ![](images/Features2_1_3.png)
 ![](images/Features2_4_6.png)
 
-
-Baseline_CRF PolNeAR_PolNeAR
-Baseline_CRF PolNeAR-rm_PolNeAR
-Baseline_CRF PARC3.0_PARC3.0
-Baseline_CRF PARC3.0-rm_PARC3.0
-Baseline_CRF Merged_Merged
-Baseline_CRF Merged-rm_Merged
-
-Embedding_CRF PolNeAR_PolNeAR
-Embedding_CRF PolNeAR-rm_PolNeAR
-Embedding_CRF PARC3.0_PARC3.0
-Embedding_CRF PARC3.0-rm_PARC3.0
-Embedding_CRF Merged_Merged
-Embedding_CRF Merged-rm_Merged
-
-Features2_CRF PolNeAR_PolNeAR
-Features2_CRF PolNeAR-rm_PolNeAR
-Features2_CRF PARC3.0_PARC3.0
-Features2_CRF PARC3.0-rm_PARC3.0
-Features2_CRF Merged_Merged
-Features2_CRF Merged-rm_Merged
 
