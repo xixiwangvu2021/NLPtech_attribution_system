@@ -18,11 +18,11 @@ The notebooks in this repository are the modules of the pipeline.
 
 ## Running the code
 
-All code is in Python 3.
+1. All code is in Python 3.
 
 Install requirements are included in the notebooks.
 
-Usage is explained through the following videos:
+2. Usage is explained through the following videos:
 
 video1 https://drive.google.com/file/d/1SDgBw7m0SQnSx3prNUS0KGb_cHJuRU3u/view?usp=sharing
 
@@ -30,7 +30,7 @@ video2 https://drive.google.com/file/d/1q2ET9FFW16Bq2j99r8U0OKTzI7mxiqpf/view?us
 
 video3 https://drive.google.com/file/d/1jUjo6G4SVKb3uLwnVvWPqZaqg7TlAzQh/view?usp=sharing
 
-After running through all the notebooks and evaluation scripts, the following results should be given:
+3. After running through all the notebooks and evaluation scripts, the following results should be given:
 
 ![](images/Baseline_1_3.png)
 ![](images/Baseline_4_6.png)
