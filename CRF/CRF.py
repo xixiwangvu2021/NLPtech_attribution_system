@@ -37,21 +37,11 @@ class CRF(object):
     def extract_sents_from_conll(self, inputfile):
 
         csvinput = open(f'Preprocessed_data/{inputfile}', 'r', encoding="utf-8")
-#         csvreader = csv.reader(csvinput, delimiter='\t')
         csvreader = csv.reader(csvinput, delimiter='|')
         # First consume header row
         headers = next(csvreader)
         sents = []
         current_sent = []
-#         for i, row in enumerate(csvreader):
-#             # note that this is a simplification that works well for this particular data, in other situations,
-#             # you may need to do more advanced preprocessing to identify sentence boundaries
-#             if row[3] == "1" and row[2] != "1":
-#                 sents.append(current_sent)
-#                 current_sent = []
-#             current_sent.append(tuple(row))
-#         # Add last row of file
-#         sents.append(current_sent)
         for row in csvreader:
             current_sent.append(tuple(row))
             # After each sentence there is a special token: Sent_end. Its label is O. It was added in the preprocessing step.
@@ -102,8 +92,6 @@ class CRF(object):
         outfile = open(f'Result/{outputfile}', 'w')
         headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
                    "Dep_label", "Token_dep_head", "AR_label"]
-        # headers = ['Word', 'pred_AR_label']
-#         header_row = '\t'.join(headers) + '\n'
         header_row = '|'.join(headers) + '\n'
 
         outfile.write(header_row)
@@ -112,7 +100,6 @@ class CRF(object):
             for data, pred in zip(evalsents, predsents):
                 # Data: from tuple to string separated string, except for the gold label from the original file
                 data_tsv = '\t'.join(list(data)[:10])
-#                 outfile.write(data_tsv + "\t" + pred + "\n")
                 outfile.write(data_tsv + "|" + pred + "\n")
                 # Why last line not written?
 
@@ -124,8 +111,6 @@ class CRF(object):
         outfile = open(f'Result/{outputfile}', 'w', encoding="utf-8")
         headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
                    "Dep_label", "Token_dep_head", "AR_label"]
-        # headers = ['Word', 'pred_AR_label']
-#         header_row = '\t'.join(headers) + '\n'
         header_row = '|'.join(headers) + '\n'
 
 
@@ -134,8 +119,6 @@ class CRF(object):
         for evalsents, predsents in zip(eval_data, pred_labels):
             for data, pred in zip(evalsents, predsents):
                 # Data: from tuple to string separated string, except for the gold label from the original file
-#                 data_tsv = '\t'.join(list(data)[:10])
-#                 outfile.write(data_tsv + "\t" + pred + "\n")
                 data_tsv = '|'.join(list(data)[:10])
                 outfile.write(data_tsv + "|" + pred + "\n")
 
@@ -147,7 +130,6 @@ class CRF(object):
         outfile = open(f'Result/Diff/{outputfile}', 'w', encoding="utf-8")
         headers = ["Article_Name", "Sentence_nr", "Nr_in_file", "Nr_in_sentence", "FromTo", "Word", "Lemma", "POS",
                    "Dep_label", "Token_dep_head", "AR_label", "Pred_AR_label"]
-#         header_row = '\t'.join(headers) + '\n'
         header_row = '|'.join(headers) + '\n'
 
         outfile.write(header_row)
@@ -157,8 +139,6 @@ class CRF(object):
                 eval_label = data[10]
                 if eval_label != pred_label:
                     # Data: from tuple to string separated string, except for the gold label from the original file
-#                     data_tsv = '\t'.join(list(data[:11]))
-#                     outfile.write(data_tsv + "\t" + pred_label + "\n")
                     data_tsv = '|'.join(list(data[:11]))
                     outfile.write(data_tsv + "|" + pred_label + "\n")
 
@@ -291,24 +271,15 @@ class Features2CRF(BaseFeaturesCRF):
             word = word.lower()
             word_is_upper = word.isupper()
 
-#         prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
-#         if i - 2 >= 0:
-#             prev_prev_postag = sentence[i-2][7]
-#         if i - 1 >= 0:
-#             prev_postag = sentence[i-1][7]
-#         if i + 2 < len(sentence):
-#             next_next_postag = sentence[i+2][7]
-#         if i + 1 < len(sentence):
-#             next_postag = sentence[i+1][7]
-        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
         if i - 2 >= 0:
-            prev_prev_lemma = sentence[i-2][7]
+            prev_prev_postag = sentence[i-2][7]
         if i - 1 >= 0:
-            prev_lemma = sentence[i-1][7]
+            prev_postag = sentence[i-1][7]
         if i + 2 < len(sentence):
-            next_next_lemma = sentence[i+2][7]
+            next_next_postag = sentence[i+2][7]
         if i + 1 < len(sentence):
-            next_lemma = sentence[i+1][7]
+            next_postag = sentence[i+1][7]
 
         features = {
             'bias': 1.0,
@@ -316,14 +287,10 @@ class Features2CRF(BaseFeaturesCRF):
             'word.isupper()': word_is_upper,
             'postag': postag,
             'postag[:2]': postag[:2],
-#             'prev_prev_postag': prev_prev_postag,
-#             'prev_postag': prev_postag,
-#             'next_next_postag': next_next_postag,
-#             'next_postag': next_postag,
-            'prev_prev_lemma': prev_prev_lemma,
-            'prev_lemma': prev_lemma,
-            'next_next_lemma': next_next_lemma,
-            'next_lemma': next_lemma,
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
             'dep_label': dep_label,
             'nr_in_sentence': nr_in_sentence,
             'in_quote': in_quote,
@@ -838,287 +805,6 @@ class Features7CRF(BaseFeaturesCRF):
         return features
 
 
-# Only renamed some features in comparison to Features2CRF
-class Features8CRF(BaseFeaturesCRF):
-    def token2features(self, sentence, i):
-        nr_in_sentence = sentence[i][3]
-        word = sentence[i][5]
-        postag = sentence[i][7]
-        dep_label = sentence[i][8]
-        in_quote = sentence[i][11]
-        after_colon = sentence[i][12]
-        dependency_distance = sentence[i][13]
-        dependency_path = sentence[i][14]
-        # constituent_path
-
-        word_is_upper = ''
-        if word:
-            word = word.lower()
-            word_is_upper = word.isupper()
-
-        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
-        if i - 2 >= 0:
-            prev_prev_postag = sentence[i-2][7]
-        if i - 1 >= 0:
-            prev_postag = sentence[i-1][7]
-        if i + 2 < len(sentence):
-            next_next_postag = sentence[i+2][7]
-        if i + 1 < len(sentence):
-            next_postag = sentence[i+1][7]
-#         prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
-#         if i - 2 >= 0:
-#             prev_prev_lemma = sentence[i-2][7]
-#         if i - 1 >= 0:
-#             prev_lemma = sentence[i-1][7]
-#         if i + 2 < len(sentence):
-#             next_next_lemma = sentence[i+2][7]
-#         if i + 1 < len(sentence):
-#             next_lemma = sentence[i+1][7]
-
-        features = {
-            'bias': 1.0,
-            'token': word,
-            'word.isupper()': word_is_upper,
-            'postag': postag,
-            'postag[:2]': postag[:2],
-            'prev_prev_postag': prev_prev_postag,
-            'prev_postag': prev_postag,
-            'next_next_postag': next_next_postag,
-            'next_postag': next_postag,
-#             'prev_prev_lemma': prev_prev_lemma,
-#             'prev_lemma': prev_lemma,
-#             'next_next_lemma': next_next_lemma,
-#             'next_lemma': next_lemma,
-            'dep_label': dep_label,
-            'nr_in_sentence': nr_in_sentence,
-            'in_quote': in_quote,
-            'after_colon': after_colon,
-#             'dependency_distance': dependency_distance,
-#             'dependency_path': dependency_path,
-            'dep_distance': dependency_distance,
-            'dep_path': dependency_path,
-        }
-
-        if i > 0:
-            word1 = sentence[i - 1][5]
-            postag1 = sentence[i - 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1 = word1.lower()
-                word1_is_upper = word1.isupper()
-
-            features.update({
-                '-1:word.lower()': word1.lower(),
-                '-1:word.isupper()': word1_is_upper,
-                '-1:postag': postag1,
-                '-1:postag[:2]': postag1[:2],
-            })
-        else:
-            features['BOS'] = True
-
-        if i < len(sentence) - 1:
-            word1 = sentence[i + 1][5]
-            postag1 = sentence[i + 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1 = word1.lower()
-                word1_is_upper = word1.isupper()
-
-            features.update({
-                '+1:word.lower()': word1.lower(),
-                '+1:word.isupper()': word1_is_upper,
-                '+1:postag': postag1,
-                '+1:postag[:2]': postag1[:2],
-            })
-        else:
-            features['EOS'] = True
-
-        return features
-
-    
-class Features9CRF(BaseFeaturesCRF):
-    def token2features(self, sentence, i):
-        nr_in_sentence = sentence[i][3]
-        word = sentence[i][5]
-        postag = sentence[i][7]
-        dep_label = sentence[i][8]
-        in_quote = sentence[i][11]
-        after_colon = sentence[i][12]
-        dependency_distance = sentence[i][13]
-        dependency_path = sentence[i][14]
-        # constituent_path
-
-        word_is_upper = ''
-        if word:
-            word_is_upper = word[0].isupper()
-            word = word.lower()
-            
-        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
-        if i - 2 >= 0:
-            prev_prev_postag = sentence[i-2][7]
-        if i - 1 >= 0:
-            prev_postag = sentence[i-1][7]
-        if i + 2 < len(sentence):
-            next_next_postag = sentence[i+2][7]
-        if i + 1 < len(sentence):
-            next_postag = sentence[i+1][7]
-
-        features = {
-            'bias': 1.0,
-            'token': word,
-            'word.isupper()': word_is_upper,
-            'postag': postag,
-            'postag[:2]': postag[:2],
-            'prev_prev_postag': prev_prev_postag,
-            'prev_postag': prev_postag,
-            'next_next_postag': next_next_postag,
-            'next_postag': next_postag,
-            'dep_label': dep_label,
-            'nr_in_sentence': nr_in_sentence,
-            'in_quote': in_quote,
-            'after_colon': after_colon,
-            'dep_distance': dependency_distance,
-            'dep_path': dependency_path,
-        }
-
-        if i > 0:
-            word1 = sentence[i - 1][5]
-            postag1 = sentence[i - 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1_is_upper = word1[0].isupper()
-                word1 = word1.lower()
-                
-            features.update({
-                '-1:word.lower()': word1.lower(),
-                '-1:word.isupper()': word1_is_upper,
-                '-1:postag': postag1,
-                '-1:postag[:2]': postag1[:2],
-            })
-        else:
-            features['BOS'] = True
-
-        if i < len(sentence) - 1:
-            word1 = sentence[i + 1][5]
-            postag1 = sentence[i + 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1_is_upper = word1[0].isupper()
-                word1 = word1.lower()
-                
-            features.update({
-                '+1:word.lower()': word1.lower(),
-                '+1:word.isupper()': word1_is_upper,
-                '+1:postag': postag1,
-                '+1:postag[:2]': postag1[:2],
-            })
-        else:
-            features['EOS'] = True
-
-        return features
-
-    
-class Features10CRF(BaseFeaturesCRF):
-    def token2features(self, sentence, i):
-        nr_in_sentence = sentence[i][3]
-        word = sentence[i][5]
-        postag = sentence[i][7]
-        dep_label = sentence[i][8]
-        in_quote = sentence[i][11]
-        after_colon = sentence[i][12]
-        dependency_distance = sentence[i][13]
-        dependency_path = sentence[i][14]
-        # constituent_path
-
-        word_is_upper = ''
-        if word:
-            word = word.lower()
-            word_is_upper = word.isupper()
-
-#         prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
-#         if i - 2 >= 0:
-#             prev_prev_postag = sentence[i-2][7]
-#         if i - 1 >= 0:
-#             prev_postag = sentence[i-1][7]
-#         if i + 2 < len(sentence):
-#             next_next_postag = sentence[i+2][7]
-#         if i + 1 < len(sentence):
-#             next_postag = sentence[i+1][7]
-        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
-        if i - 2 >= 0:
-            prev_prev_lemma = sentence[i-2][7]
-        if i - 1 >= 0:
-            prev_lemma = sentence[i-1][7]
-        if i + 2 < len(sentence):
-            next_next_lemma = sentence[i+2][7]
-        if i + 1 < len(sentence):
-            next_lemma = sentence[i+1][7]
-
-        features = {
-            'bias': 1.0,
-            'token': word,
-            'word.isupper()': word_is_upper,
-            'postag': postag,
-            'postag[:2]': postag[:2],
-#             'prev_prev_postag': prev_prev_postag,
-#             'prev_postag': prev_postag,
-#             'next_next_postag': next_next_postag,
-#             'next_postag': next_postag,
-            'prev_prev_lemma': prev_prev_lemma,
-            'prev_lemma': prev_lemma,
-            'next_next_lemma': next_next_lemma,
-            'next_lemma': next_lemma,
-            'dep_label': dep_label,
-            'nr_in_sentence': nr_in_sentence,
-            'in_quote': in_quote,
-            'after_colon': after_colon,
-            'dependency_distance': dependency_distance,
-            'dependency_path': dependency_path,
-        }
-
-        if i > 0:
-            word1 = sentence[i - 1][5]
-            postag1 = sentence[i - 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1 = word1.lower()
-                word1_is_upper = word.isupper()
-
-            features.update({
-                '-1:word.lower()': word1.lower(),
-                '-1:word.isupper()': word1_is_upper,
-                '-1:postag': postag1,
-                '-1:postag[:2]': postag1[:2],
-            })
-        else:
-            features['BOS'] = True
-
-        if i < len(sentence) - 1:
-            word1 = sentence[i + 1][5]
-            postag1 = sentence[i + 1][7]
-
-            word1_is_upper = ''
-            if word1:
-                word1 = word1.lower()
-                word1_is_upper = word.isupper()
-
-            features.update({
-                '+1:word.lower()': word1.lower(),
-                '+1:word.isupper()': word1_is_upper,
-                '+1:postag': postag1,
-                '+1:postag[:2]': postag1[:2],
-            })
-        else:
-            features['EOS'] = True
-
-        return features
-
-    
 class BaseEmbeddingCRF(CRF):
     def __init__(self, nr_model_dimensions, **kwargs):
         """
@@ -1221,24 +907,15 @@ class Features2Embedding2CRF(BaseFeaturesCRF, BaseEmbeddingCRF):
             word = word.lower()
             word_is_upper = word.isupper()
 
-#         prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
-#         if i - 2 >= 0:
-#             prev_prev_postag = sentence[i-2][7]
-#         if i - 1 >= 0:
-#             prev_postag = sentence[i-1][7]
-#         if i + 2 < len(sentence):
-#             next_next_postag = sentence[i+2][7]
-#         if i + 1 < len(sentence):
-#             next_postag = sentence[i+1][7]
-        prev_prev_lemma, prev_lemma, next_next_lemma, next_lemma = '', '', '', ''
+        prev_prev_postag, prev_postag, next_next_postag, next_postag = '', '', '', ''
         if i - 2 >= 0:
-            prev_prev_lemma = sentence[i-2][7]
+            prev_prev_postag = sentence[i-2][7]
         if i - 1 >= 0:
-            prev_lemma = sentence[i-1][7]
+            prev_postag = sentence[i-1][7]
         if i + 2 < len(sentence):
-            next_next_lemma = sentence[i+2][7]
+            next_next_postag = sentence[i+2][7]
         if i + 1 < len(sentence):
-            next_lemma = sentence[i+1][7]
+            next_postag = sentence[i+1][7]
 
         features = {
             'bias': 1.0,
@@ -1246,14 +923,10 @@ class Features2Embedding2CRF(BaseFeaturesCRF, BaseEmbeddingCRF):
             'word.isupper()': word_is_upper,
             'postag': postag,
             'postag[:2]': postag[:2],
-#             'prev_prev_postag': prev_prev_postag,
-#             'prev_postag': prev_postag,
-#             'next_next_postag': next_next_postag,
-#             'next_postag': next_postag,
-            'prev_prev_lemma': prev_prev_lemma,
-            'prev_lemma': prev_lemma,
-            'next_next_lemma': next_next_lemma,
-            'next_lemma': next_lemma,
+            'prev_prev_postag': prev_prev_postag,
+            'prev_postag': prev_postag,
+            'next_next_postag': next_next_postag,
+            'next_postag': next_postag,
             'dep_label': dep_label,
             'nr_in_sentence': nr_in_sentence,
             'in_quote': in_quote,
