@@ -17,7 +17,8 @@ Although our results aren't comparable with the state-of-the-art performance, ye
 ## Notebooks
 
 The notebooks in CRF folder are the modules of the integrated pipeline.
-The notebooks in CRF with embeddings are the experimenting notebooks with word embeddings.
+
+The notebooks in the folder of CRF with Embeddings are the experimenting notebooks with word embeddings.
 
 ## Running the code
 
@@ -25,7 +26,11 @@ The notebooks in CRF with embeddings are the experimenting notebooks with word e
 
 Install requirements are included in the notebooks.
 
-2. Usage is explained through the following videos:
+2. Usage
+
+In order to run the pipeline notebooks, we need to 1) add unzipped data folders to the main directory, 2) under the CRF folder, add empty folders 'Preprocessed_data' and 'CONLL' and add word embedding pretrained model 'glove.6B.50d.txt', then 3) under the 'CONLL' folder, add the evaluation scripts (evaluation.attribution.v5.pl) and two folders each contain the development data from each data source, and add an empty folder for the evaluation output files.
+
+How to run the pipeline from the beginning to the end is explained in the following videos:
 
 video1 https://drive.google.com/file/d/1SDgBw7m0SQnSx3prNUS0KGb_cHJuRU3u/view?usp=sharing
 
