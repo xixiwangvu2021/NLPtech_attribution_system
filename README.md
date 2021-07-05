@@ -14,7 +14,10 @@ Figure 1: The system pipeline
 
 Although our results aren't comparable with the state-of-the-art performance, yet we've successfully addressed a complete integrated AR pipeline which brings about the possibility of parallel extracting components, and on the other hand, serves as an illustrative reference for similar future work.
 
-The notebooks in this repository are the modules of the pipeline.
+## Notebooks
+
+The notebooks in CRF folder are the modules of the integrated pipeline.
+The notebooks in CRF with embeddings are the experimenting notebooks with word embeddings.
 
 ## Running the code
 
