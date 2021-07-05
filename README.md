@@ -1,6 +1,6 @@
 # NLP_Technology(RM)_tutorial_report_Processing_Attribution
 
-This repository contains code and auxiliary materials for NLP Technology(RM) tutorial report **Processing Attribution** by Betty van Dongen (e.c.van.dongen@student.vu.nl), Fina Polat (f.e.yilmazpolat@student.vu.nl) and Xixi Wang (x21.wang@student.vu.nl) in June 2021.
+This repository contains code and auxiliary materials for NLP Technology(RM) tutorial report **Processing Attribution** by Betty van Dongen (e.c.van.dongen@student.vu.nl), Fina Polat (f.e.yilmazpolat@student.vu.nl) and Xixi Wang (x21.wang@student.vu.nl) in June and July 2021.
 
 The report **Processing Attribution** introduces a complete pipeline of processing attribution relations (ARs). The pipeline has integrated the Baseline_CRF,  Embedding_CRF and Features2_CRF. For the first two models, the pipeline consists of Pre-processing, Component extraction, AR extraction, Post-processing and Evaluation; for the third model, the pipeline includes a Feature extraction before Component extraction.
 
